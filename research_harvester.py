@@ -1,25 +1,27 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
-st.set_page_config(page_title="🧠 Chaos Harvester", layout="centered")
-st.title("🧪 Autonomous Research Assistant")
+# --- Page Config ---
+st.set_page_config(page_title="AI Research Assistant", layout="centered")
+st.title("🧠 Chaos Harvester: Research Assistant")
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# --- OpenAI Client Init ---
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-st.markdown("Paste raw scientific or research-related text below:")
-input_text = st.text_area("🔍 Input Text", height=300)
+# --- Text Input ---
+input_text = st.text_area("🔍 Paste raw research text below:", height=300)
 
-if st.button("Harvest Insights"):
-    if input_text.strip() == "":
-        st.warning("Please paste some text.")
+if st.button("🧪 Analyze"):
+    if not input_text.strip():
+        st.warning("Please paste some text first.")
     else:
-        with st.spinner("Processing..."):
-            response = openai.ChatCompletion.create(
+        with st.spinner("Harvesting insights from chaos..."):
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are a research analyst. Your job is to extract meaningful insights from academic or unstructured scientific text."},
-                    {"role": "user", "content": f"""Analyze the following text:\n\n{input_text}\n\nYour Tasks:\n1. Provide a summary\n2. List key contributions\n3. Identify weaknesses or missing parts\n4. Suggest future work directions"""}
+                    {"role": "system", "content": "You're a research analyst. Extract structured insights from chaotic text."},
+                    {"role": "user", "content": f"""Text:\n{input_text}\n\nTasks:\n1. Summarize it.\n2. Extract key points.\n3. List weaknesses/gaps.\n4. Suggest future work."""}
                 ]
             )
-            st.markdown("### 🧠 Insights:")
-            st.write(response['choices'][0]['message']['content'])
+            st.markdown("### 🧠 Insights")
+            st.write(response.choices[0].message.content)
